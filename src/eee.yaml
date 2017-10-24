@@ -1,0 +1,34 @@
+name: eee-hyst
+version: "0.1.0"
+author: Miguel Rodríguez Pérez <miguel@det.uvigo.gal>
+about: A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis
+args:
+    - hyst:
+        short: h
+        long: hyst
+        value_name: HYST
+        help: Time before entering LPI in µs
+        takes_value: true
+        default_value: "0"
+    - delay:
+        short: d
+        long: delay
+        value_name: DELAY
+        help: Time since first scheduled packet in LPI until resuming normal mode
+        default_value: "0"
+    - INPUT:
+        help: Traffic input file to use. Format "time (ns) length (bytes)". Use '-' for stdin.
+        required: false
+        index: 1
+    - OUTPUT:
+        short: o
+        long: output
+        help: Traffic output file. Same format as INPUT. Uses stdout if not present.
+        required: false
+        takes_value: true
+    - LOG:
+        short: l
+        long: log
+        help: Log output filename, if present.
+        required: false
+        takes_value: true

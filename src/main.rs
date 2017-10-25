@@ -1,12 +1,48 @@
+#![feature(slice_patterns)]
 #[macro_use]
+
 extern crate clap;
 extern crate eee_hyst;
 
 use clap::App;
 use std::fs::File;
 use std::io;
-use std::io::{BufReader, BufRead, BufWriter, Write};
-use eee_hyst::simulator;
+use std::io::{Read, BufReader, BufRead, BufWriter, Write};
+use eee_hyst::{Time, simulator};
+use eee_hyst::switch::Packet;
+use std::iter::Iterator;
+
+struct PacketsFromRead<R: Read> {
+    is: BufReader<R>,
+}
+
+impl<R: Read> PacketsFromRead<R> {
+    pub fn new(buf: R) -> PacketsFromRead<R> {
+        PacketsFromRead { is: BufReader::new(buf) }
+    }
+}
+
+impl<R: Read> Iterator for PacketsFromRead<R> {
+    type Item = Packet;
+
+    fn next(&mut self) -> Option<Packet> {
+        let line = &mut String::new();
+
+        let entries: Vec<u64> = match self.is.read_line(line) {
+            Err(_) => return None,
+            _ => {
+                line.split_whitespace()
+                    .map(|x| x.parse().expect("Could not parse input as a number."))
+                    .collect()
+            }
+        };
+
+        match &entries[..] {
+            &[arrival, size] => Some(Packet::new(Time(arrival), size as u32)),
+            _ => None,
+        }
+    }
+}
 
 fn main() {
     let yaml = load_yaml!("eee.yaml");
@@ -21,7 +57,7 @@ fn main() {
     }
 
     let stdin = io::stdin();
-    let mut input_read;
+    let input_read;
 
     match matches.value_of("INPUT") {
         Some(filename) => {
@@ -61,19 +97,34 @@ fn main() {
         None => log_writer = None,
     }
 
-    let mut simul = simulator::Simulator::new(
+    let simul = simulator::Simulator::new(
         hyst.expect("Hystereris was not a proper number."),
         maxidle.expect("Delay was not a properly formatted number."),
-        &mut input_read,
-        &mut trace_writer,
-        log_writer.as_mut(),
+        PacketsFromRead::new(input_read),
     );
 
-    ::std::process::exit(match simul.run() {
-        Ok(_) => 0,
-        Err(err) => {
-            eprintln!("Error during simulation: {}.", err);
-            1
+    for ev in simul
+        .map(|ev| match ev {
+            (time, Some(packet), _) => {
+                writeln!(trace_writer, "{}\t{}", time, packet.size())
+                    .expect("Error writing output trace.");
+                ev
+            }
+            (_, None, _) => ev,
+        })
+        .filter(|ev| match *ev {
+            (_, _, Some(_)) => true,
+            _ => false,
+        })
+    {
+        if log_writer.is_some() {
+            match ev {
+                (time, _, Some(ref status)) => {
+                    writeln!(log_writer.as_mut().unwrap(), "{}\t{}", time, status)
+                        .expect("Error writing output log.");
+                }
+                _ => panic!("No such event in here"),
+            }
         }
-    });
+    }
 }

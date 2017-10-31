@@ -6,7 +6,7 @@ const T_S: Time = Time(2880);
 const T_W: Time = Time(4480);
 const CAPACITY: f64 = 10e9;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Packet {
     arrival: Time,
     size: u32,

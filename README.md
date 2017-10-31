@@ -1,6 +1,8 @@
 HystEEE
 =======
 
+[![Build Status](https://travis-ci.org/migrax/HystEEE.svg?branch=master)](https://travis-ci.org/migrax/HystEEE)
+
 A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis
 
 ## Overview
@@ -22,7 +24,7 @@ before entering LPI mode.
     -o, --output <OUTPUT>    Traffic output file. Same format as INPUT. Uses
                              stdout if not present.
     -d, --delay <DELAY>      Time since first scheduled packet in LPI until
-                             resuming normal mode [default: 0]
+                             resuming normal mode in µs [default: 0]
     -h, --hyst <HYST>        Time before entering LPI in µs [default: 0]
 
 ### ARGS:

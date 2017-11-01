@@ -114,10 +114,25 @@ struct Event {
     state_change: bool,
 }
 
+enum Status {
+    Off,
+    On,
+    TOff,
+    TOn,
+}
+
 trait SwitchStatus {
     fn advance(self: Box<Self>, now: Time, switch: &mut Switch) -> Event;
 
-    fn name<'a>(&self) -> &'a str;
+    fn state(&self) -> Status;
+    fn name<'a>(&self) -> &'a str {
+        match self.state() {
+            Status::Off => "OFF",
+            Status::On => "ON",
+            Status::TOff => "T_OFF",
+            Status::TOn => "T_ON"
+        }
+    }
 }
 
 struct Off {
@@ -149,8 +164,8 @@ impl SwitchStatus for Off {
         }
     }
 
-    fn name<'a>(&self) -> &'a str {
-        "OFF"
+    fn state(&self) -> Status {
+        Status::Off
     }
 }
 
@@ -165,8 +180,8 @@ impl TOn {
 }
 
 impl SwitchStatus for TOn {
-    fn name<'a>(&self) -> &'a str {
-        "T_ON"
+    fn state(&self) -> Status {
+        Status::TOn
     }
 
     fn advance(mut self: Box<Self>, _now: Time, switch: &mut Switch) -> Event {
@@ -201,8 +216,8 @@ impl On {
 }
 
 impl SwitchStatus for On {
-    fn name<'a>(&self) -> &'a str {
-        "ON"
+    fn state(&self) -> Status {
+        Status::On
     }
 
     fn advance(mut self: Box<Self>, now: Time, switch: &mut Switch) -> Event {
@@ -254,8 +269,8 @@ impl TOff {
 }
 
 impl SwitchStatus for TOff {
-    fn name<'a>(&self) -> &'a str {
-        "T_OFF"
+    fn state(&self) -> Status {
+        Status::TOff
     }
 
     fn advance(mut self: Box<Self>, _now: Time, switch: &mut Switch) -> Event {

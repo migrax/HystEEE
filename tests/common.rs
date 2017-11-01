@@ -3,7 +3,7 @@
 extern crate eee_hyst;
 
 use eee_hyst::simulator::{Simulator, Time};
-use eee_hyst::switch::Packet;
+use eee_hyst::switch::{Packet, Status};
 use std::iter::Iterator;
 
 pub fn setup<'a>(
@@ -19,7 +19,7 @@ pub fn setup<'a>(
     Simulator::new(hyst, idle, input_iter)
 }
 
-fn adapt_sim<'a, I: Iterator<Item = (Time, Option<Packet>, Option<String>)>>(
+fn adapt_sim<'a, I: Iterator<Item = (Time, Option<Packet>, Option<Status>)>>(
     input: &'a mut I,
 ) -> Box<'a + Iterator<Item = Packet>> {
     Box::new(
@@ -33,7 +33,7 @@ fn adapt_sim<'a, I: Iterator<Item = (Time, Option<Packet>, Option<String>)>>(
 }
 
 pub fn compare<
-    I: Iterator<Item = (Time, Option<Packet>, Option<String>)>,
+    I: Iterator<Item = (Time, Option<Packet>, Option<Status>)>,
     E: Iterator<Item = Packet>,
 >(
     mut res: &mut I,

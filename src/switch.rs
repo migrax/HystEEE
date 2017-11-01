@@ -1,6 +1,8 @@
 use simulator::Time;
 use std::cmp;
 use std::collections::VecDeque;
+use std::fmt::{Display, Formatter, Error};
+
 
 const T_S: Time = Time(2880);
 const T_W: Time = Time(4480);
@@ -61,8 +63,8 @@ impl Switch {
         self.queue.push_back(*packet);
     }
 
-    pub fn status<'a>(&self) -> &'a str {
-        self.status.as_ref().unwrap().name()
+    pub fn status(&self) -> Status {
+        self.status.as_ref().unwrap().state()
     }
 
     pub fn advance(&mut self, now: Time) -> SwitchEvent {
@@ -114,25 +116,32 @@ struct Event {
     state_change: bool,
 }
 
-enum Status {
+pub enum Status {
     Off,
     On,
     TOff,
     TOn,
 }
 
+impl Display for Status {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(
+            f,
+            "{}",
+            match self {
+                &Status::Off => "OFF",
+                &Status::On => "ON",
+                &Status::TOff => "T_OFF",
+                &Status::TOn => "T_ON",
+            }
+        )
+    }
+}
+
 trait SwitchStatus {
     fn advance(self: Box<Self>, now: Time, switch: &mut Switch) -> Event;
 
     fn state(&self) -> Status;
-    fn name<'a>(&self) -> &'a str {
-        match self.state() {
-            Status::Off => "OFF",
-            Status::On => "ON",
-            Status::TOff => "T_OFF",
-            Status::TOn => "T_ON"
-        }
-    }
 }
 
 struct Off {

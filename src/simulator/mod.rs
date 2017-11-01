@@ -1,6 +1,6 @@
 mod time;
 
-use switch::{Switch, Packet};
+use switch::{Switch, Packet, Status};
 use std::iter::Iterator;
 pub use self::time::Time;
 
@@ -12,9 +12,9 @@ pub struct Simulator<I: Iterator<Item = Packet>> {
 }
 
 impl<I: Iterator<Item = Packet>> Iterator for Simulator<I> {
-    type Item = (Time, Option<Packet>, Option<String>);
+    type Item = (Time, Option<Packet>, Option<Status>);
 
-    fn next(&mut self) -> Option<(Time, Option<Packet>, Option<String>)> {
+    fn next(&mut self) -> Option<(Time, Option<Packet>, Option<Status>)> {
         match self.next_packet {
             Some(packet) => {
                 let arrival_time = packet.arrival();
@@ -29,7 +29,7 @@ impl<I: Iterator<Item = Packet>> Iterator for Simulator<I> {
                 }
 
                 let status = if res.state_change() {
-                    Some(String::from(self.switch.status()))
+                    Some(self.switch.status())
                 } else {
                     None
                 };

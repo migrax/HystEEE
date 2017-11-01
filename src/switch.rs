@@ -61,7 +61,7 @@ impl Switch {
         self.queue.push_back(*packet);
     }
 
-    pub fn status(&self) -> &'static str {
+    pub fn status<'a>(&self) -> &'a str {
         self.status.as_ref().unwrap().name()
     }
 
@@ -117,7 +117,7 @@ struct Event {
 trait SwitchStatus {
     fn advance(self: Box<Self>, now: Time, switch: &mut Switch) -> Event;
 
-    fn name(&self) -> &'static str;
+    fn name<'a>(&self) -> &'a str;
 }
 
 struct Off {
@@ -149,7 +149,7 @@ impl SwitchStatus for Off {
         }
     }
 
-    fn name(&self) -> &'static str {
+    fn name<'a>(&self) -> &'a str {
         "OFF"
     }
 }
@@ -165,7 +165,7 @@ impl TOn {
 }
 
 impl SwitchStatus for TOn {
-    fn name(&self) -> &'static str {
+    fn name<'a>(&self) -> &'a str {
         "T_ON"
     }
 
@@ -201,7 +201,7 @@ impl On {
 }
 
 impl SwitchStatus for On {
-    fn name(&self) -> &'static str {
+    fn name<'a>(&self) -> &'a str {
         "ON"
     }
 
@@ -254,7 +254,7 @@ impl TOff {
 }
 
 impl SwitchStatus for TOff {
-    fn name(&self) -> &'static str {
+    fn name<'a>(&self) -> &'a str {
         "T_OFF"
     }
 

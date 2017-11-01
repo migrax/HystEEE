@@ -9,7 +9,7 @@ use common::*;
 
 #[test]
 fn from_off() {
-    let input = vec![(100, 1000), (5000, 5000)];
+    let input = vec![(100, 1000)];
     let expected = vec![Packet::new(Time(5380), 1000)];
     let mut sim = setup(&input, Time(0), Time(0));
 
@@ -22,7 +22,7 @@ fn from_off() {
 
 #[test]
 fn from_off_delay() {
-    let input = vec![(100, 1000), (5000, 5000)];
+    let input = vec![(100, 1000)];
     let expected = vec![Packet::new(Time(5880), 1000)];
     let mut sim = setup(&input, Time(0), Time(500));
 

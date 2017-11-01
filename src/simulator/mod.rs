@@ -18,8 +18,7 @@ impl<I: Iterator<Item = Packet>> Iterator for Simulator<I> {
         match self.next_packet {
             Some(packet) => {
                 let arrival_time = packet.arrival();
-                let res = self.switch.advance(self.current_time);
-                self.current_time = res.time();
+                let res = self.process();
 
                 if self.current_time >= arrival_time {
                     self.next_packet = self.input.next();
@@ -28,16 +27,10 @@ impl<I: Iterator<Item = Packet>> Iterator for Simulator<I> {
                     }
                 }
 
-                let status = if res.state_change() {
-                    Some(self.switch.status())
-                } else {
-                    None
-                };
-
-
-                Some((res.time(), res.packet(), status))
+                Some(res)
             }
-            None => None,
+            None if self.switch.is_empty() => None,
+            None => Some(self.process()),
         }
     }
 }
@@ -57,5 +50,19 @@ impl<I: Iterator<Item = Packet>> Simulator<I> {
         }
 
         s
+    }
+
+    fn process(&mut self) -> (Time, Option<Packet>, Option<Status>) {
+        let res = self.switch.advance(self.current_time);
+
+        self.current_time = res.time();
+
+        let status = if res.state_change() {
+            Some(self.switch.status())
+        } else {
+            None
+        };
+
+        (res.time(), res.packet(), status)
     }
 }

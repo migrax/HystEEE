@@ -63,6 +63,10 @@ impl Switch {
         self.queue.push_back(*packet);
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.queue.is_empty()
+    }
+
     pub fn status(&self) -> Status {
         self.status.as_ref().unwrap().state()
     }

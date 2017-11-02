@@ -1,4 +1,3 @@
-#![feature(slice_patterns)]
 #[macro_use]
 
 extern crate clap;
@@ -29,18 +28,29 @@ impl<R: Read> Iterator for PacketsFromRead<R> {
     fn next(&mut self) -> Option<Packet> {
         let line = &mut String::new();
 
-        let entries: Vec<u64> = match self.is.read_line(line) {
+        match self.is.read_line(line) {
             Err(_) => return None,
             _ => {
-                line.split_whitespace()
-                    .map(|x| x.parse().expect("Could not parse input as a number."))
-                    .collect()
-            }
-        };
+                let values: Vec<&str> = line.split_whitespace().collect();
 
-        match &entries[..] {
-            &[arrival, size] => Some(Packet::new(Time(arrival), size as u32)),
-            _ => None,
+                match values.len() {
+                    0 => None, // Just an empty line
+                    2 => Some(Packet::new(
+                        Time(values[0].parse().expect(&format!(
+                            "{} is not a valid arrival time.",
+                            values[0]
+                        ))),
+                        values[1].parse().expect(&format!(
+                            "{} is not a valid size.",
+                            values[1]
+                        )),
+                    )),
+                    _ => {
+                        eprintln!("Malformed line \"{}\"", line);
+                        ::std::process::exit(1)
+                    }
+                }
+            }
         }
     }
 }

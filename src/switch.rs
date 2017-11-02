@@ -120,6 +120,7 @@ struct Event {
     state_change: bool,
 }
 
+#[derive(Hash, PartialEq, Eq)]
 pub enum Status {
     Off,
     On,

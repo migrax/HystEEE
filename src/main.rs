@@ -9,8 +9,9 @@ use std::fs::File;
 use std::io;
 use std::io::{Read, BufReader, BufRead, BufWriter, Write};
 use eee_hyst::{Time, simulator};
-use eee_hyst::switch::Packet;
+use eee_hyst::switch::{Packet, Status};
 use std::iter::Iterator;
+use std::collections::HashMap;
 
 struct PacketsFromRead<R: Read> {
     is: BufReader<R>,
@@ -41,6 +42,40 @@ impl<R: Read> Iterator for PacketsFromRead<R> {
             &[arrival, size] => Some(Packet::new(Time(arrival), size as u32)),
             _ => None,
         }
+    }
+}
+
+struct Stats {
+    totals: HashMap<Status, Time>,
+    total_time: Time,
+}
+
+impl Stats {
+    fn new() -> Stats {
+        Stats {
+            totals: HashMap::new(),
+            total_time: Time(0),
+        }
+    }
+
+    fn update(&mut self, info: (Time, Status)) {
+        let (time, state) = info;
+        let stats = self.totals.entry(state).or_insert(Time(0));
+        *stats = (*stats + time) - self.total_time;
+        self.total_time = time;
+    }
+
+    fn get_total_time(&self) -> Time {
+        self.total_time
+    }
+}
+
+impl<'a> IntoIterator for &'a mut Stats {
+    type Item = (&'a Status, &'a Time);
+    type IntoIter = std::collections::hash_map::Iter<'a, Status, Time>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.totals.iter()
     }
 }
 
@@ -103,7 +138,8 @@ fn main() {
         PacketsFromRead::new(input_read),
     );
 
-    for ev in simul
+    let mut stats = Stats::new();
+    for state in simul
         .map(|ev| match ev {
             (time, Some(packet), _) => {
                 writeln!(trace_writer, "{}\t{}", time, packet.size())
@@ -112,19 +148,31 @@ fn main() {
             }
             (_, None, _) => ev,
         })
-        .filter(|ev| match *ev {
-            (_, _, Some(_)) => true,
-            _ => false,
+        .filter_map(|ev| match ev {
+            (time, _, Some(state)) => Some((time, state)),
+            _ => None,
+        })
+        .map(|ev| {
+            if log_writer.is_some() {
+                writeln!(log_writer.as_mut().unwrap(), "{}\t{}", ev.0, ev.1)
+                    .expect("Error writing output log.");
+            }
+            ev
         })
     {
-        if log_writer.is_some() {
-            match ev {
-                (time, _, Some(ref status)) => {
-                    writeln!(log_writer.as_mut().unwrap(), "{}\t{}", time, status)
-                        .expect("Error writing output log.");
-                }
-                _ => panic!("No such event in here"),
-            }
+        stats.update(state);
+    }
+
+    if log_writer.is_some() {
+        let total = stats.get_total_time();
+        for (state, time) in stats.into_iter() {
+            writeln!(
+                log_writer.as_mut().unwrap(),
+                "#\t{}:\t{:e}s\t{:5.2}%",
+                state,
+                time.as_secs(),
+                100.0 * (*time / total)
+            ).expect("Error writing to output log.");
         }
     }
 }

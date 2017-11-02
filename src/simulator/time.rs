@@ -10,6 +10,10 @@ impl Time {
     pub fn as_secs(&self) -> f64 {
         self.0 as f64 / 1e9
     }
+
+    pub fn from_secs(t: f64) -> Time {
+        Time((1e9 * t).round() as u64)
+    }
 }
 
 impl FromStr for Time {

@@ -36,7 +36,7 @@ impl<R: Read> Iterator for PacketsFromRead<R> {
                 match values.len() {
                     0 => None, // Just an empty line
                     2 => Some(Packet::new(
-                        Time(values[0].parse().expect(&format!(
+                        Time::from_secs(values[0].parse().expect(&format!(
                             "{} is not a valid arrival time.",
                             values[0]
                         ))),
@@ -152,7 +152,7 @@ fn main() {
     for state in simul
         .map(|ev| match ev {
             (time, Some(packet), _) => {
-                writeln!(trace_writer, "{}\t{}", time, packet.size())
+                writeln!(trace_writer, "{:e}\t{}", time.as_secs(), packet.size())
                     .expect("Error writing output trace.");
                 ev
             }
@@ -164,8 +164,12 @@ fn main() {
         })
         .map(|ev| {
             if log_writer.is_some() {
-                writeln!(log_writer.as_mut().unwrap(), "{}\t{}", ev.0, ev.1)
-                    .expect("Error writing output log.");
+                writeln!(
+                    log_writer.as_mut().unwrap(),
+                    "{:e}\t{}",
+                    ev.0.as_secs(),
+                    ev.1
+                ).expect("Error writing output log.");
             }
             ev
         })

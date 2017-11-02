@@ -17,7 +17,7 @@ args:
         help: Time since first scheduled packet in LPI until resuming normal mode
         default_value: "0"
     - INPUT:
-        help: Traffic input file to use. Format "time (ns) length (bytes)". Use '-' for stdin.
+        help: Traffic input file to use. Format "time (s) length (bytes)". Leave empty for stdin.
         required: false
         index: 1
     - OUTPUT:

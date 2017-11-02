@@ -56,6 +56,7 @@ impl<R: Read> Iterator for PacketsFromRead<R> {
 }
 
 struct Stats {
+    last_state: Status,
     totals: HashMap<Status, Time>,
     total_time: Time,
 }
@@ -63,6 +64,7 @@ struct Stats {
 impl Stats {
     fn new() -> Stats {
         Stats {
+            last_state: Status::Off,
             totals: HashMap::new(),
             total_time: Time(0),
         }
@@ -70,7 +72,8 @@ impl Stats {
 
     fn update(&mut self, info: (Time, Status)) {
         let (time, state) = info;
-        let stats = self.totals.entry(state).or_insert(Time(0));
+        let stats = self.totals.entry(self.last_state).or_insert(Time(0));
+        self.last_state = state;
         *stats = (*stats + time) - self.total_time;
         self.total_time = time;
     }

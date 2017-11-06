@@ -6,23 +6,23 @@ extern crate eee_hyst;
 use clap::App;
 use std::fs::File;
 use std::io;
-use std::io::{Read, BufReader, BufRead, BufWriter, Write};
+use std::io::{BufReader, BufRead, BufWriter, Write};
 use eee_hyst::{Time, simulator};
 use eee_hyst::switch::{Packet, Status};
 use std::iter::Iterator;
 use std::collections::HashMap;
 
-struct PacketsFromRead<R: Read> {
-    is: BufReader<R>,
+struct PacketsFromRead<'a, R: 'a + BufRead + ?Sized> {
+    is: &'a mut R,
 }
 
-impl<R: Read> PacketsFromRead<R> {
-    pub fn new(buf: R) -> PacketsFromRead<R> {
-        PacketsFromRead { is: BufReader::new(buf) }
+impl<'a, R: BufRead + ?Sized> PacketsFromRead<'a, R> {
+    pub fn new(buf: &'a mut R) -> PacketsFromRead<'a, R> {
+        PacketsFromRead { is: buf }
     }
 }
 
-impl<R: Read> Iterator for PacketsFromRead<R> {
+impl<'a, R: BufRead + ?Sized> Iterator for PacketsFromRead<'a, R> {
     type Item = Packet;
 
     fn next(&mut self) -> Option<Packet> {
@@ -105,32 +105,38 @@ fn main() {
     }
 
     let stdin = io::stdin();
-    let input_read;
+    let mut file_reader;
+    let mut stdin_reader;
 
-    match matches.value_of("INPUT") {
+    let input_read: &mut BufRead = match matches.value_of("INPUT") {
         Some(filename) => {
             let file = File::open(filename);
             if !file.is_ok() {
                 eprintln!("Could not open input file {}.", filename);
                 ::std::process::exit(1);
             }
-            input_read = Box::new(BufReader::new(file.unwrap())) as Box<BufRead>;
+            file_reader = BufReader::new(file.unwrap());
+            &mut file_reader
         }
-        None => input_read = Box::new(stdin.lock()) as Box<BufRead>,
-    }
+        None => {
+            stdin_reader = stdin.lock();
+            &mut stdin_reader
+        }
+    };
 
-    let mut trace_writer;
-    match matches.value_of("OUTPUT") {
+    let stdout = io::stdout();
+
+    let mut trace_writer = match matches.value_of("OUTPUT") {
         Some(filename) => {
             let file = File::create(filename);
             if !file.is_ok() {
                 eprintln!("Could not open trace file {} for writing.", filename);
                 ::std::process::exit(2);
             }
-            trace_writer = BufWriter::new(Box::new(BufWriter::new(file.unwrap())) as Box<Write>);
+            BufWriter::new(Box::new(file.unwrap()) as Box<Write>)
         }
-        None => trace_writer = BufWriter::new(Box::new(io::stdout()) as Box<Write>),
-    }
+        None => BufWriter::new(Box::new(stdout.lock()) as Box<Write>),
+    };
 
     let mut log_writer;
     match matches.value_of("LOG") {

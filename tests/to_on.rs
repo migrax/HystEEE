@@ -13,9 +13,8 @@ fn from_off() {
     let expected = vec![Packet::new(Time(5380), 1000)];
     let mut sim = setup(&input, Time(0), Time(0));
 
-    match compare(&mut sim, expected.into_iter()) {
-        Err((i, packet)) => panic!("{}th packets yielded {:?}", i, packet),
-        Ok(_) => {}
+    if let Err((i, packet)) = compare(&mut sim, expected.into_iter()) {
+        panic!("{}th packets yielded {:?}", i, packet);
     }
 }
 
@@ -26,8 +25,7 @@ fn from_off_delay() {
     let expected = vec![Packet::new(Time(5880), 1000)];
     let mut sim = setup(&input, Time(0), Time(500));
 
-    match compare(&mut sim, expected.into_iter()) {
-        Err((i, packet)) => panic!("{}th packets yielded {:?}", i, packet),
-        Ok(_) => {}
+    if let Err((i, packet)) = compare(&mut sim, expected.into_iter()) {
+        panic!("{}th packets yielded {:?}", i, packet);
     }
 }

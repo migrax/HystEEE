@@ -56,7 +56,7 @@ impl Switch {
     }
 
     fn tx_time(&self, packet: &Packet) -> Time {
-        Time((packet.size() as f64 * self.byte_time).round() as u64)
+        Time((f64::from(packet.size()) * self.byte_time).round() as u64)
     }
 
     pub fn add_packet(&mut self, packet: &Packet) {
@@ -74,7 +74,7 @@ impl Switch {
     pub fn advance(&mut self, now: Time) -> SwitchEvent {
         let res;
 
-        if let Some(state) = self.status.take() {
+        if let Some(mut state) = self.status.take() {
             let ev = state.advance(now, self);
             res = SwitchEvent::new(&ev);
             self.status = Some(ev.status);
@@ -133,18 +133,18 @@ impl Display for Status {
         write!(
             f,
             "{}",
-            match self {
-                &Status::Off => "OFF",
-                &Status::On => "ON",
-                &Status::TOff => "T_OFF",
-                &Status::TOn => "T_ON",
+            match *self {
+                Status::Off => "OFF",
+                Status::On => "ON",
+                Status::TOff => "T_OFF",
+                Status::TOn => "T_ON",
             }
         )
     }
 }
 
 trait SwitchStatus {
-    fn advance(self: Box<Self>, now: Time, switch: &mut Switch) -> Event;
+    fn advance(&mut self, now: Time, switch: &mut Switch) -> Event;
 
     fn state(&self) -> Status;
 }
@@ -160,10 +160,13 @@ impl Off {
 }
 
 impl SwitchStatus for Off {
-    fn advance(mut self: Box<Self>, _now: Time, switch: &mut Switch) -> Event {
-        let ref queue = &switch.queue;
+    fn advance(&mut self, _now: Time, switch: &mut Switch) -> Event {
+        let queue = &switch.queue;
 
-        assert!(queue.len() > 0, "Cannot run if Off state with empty queue");
+        assert!(
+            !queue.is_empty(),
+            "Cannot run if Off state with empty queue"
+        );
 
         let next_state = cmp::max(queue[0].arrival, self.last_event) + switch.idle; /* Take into account
         that the packet may have arrived with the interface transitioning to sleep */
@@ -198,10 +201,13 @@ impl SwitchStatus for TOn {
         Status::TOn
     }
 
-    fn advance(mut self: Box<Self>, _now: Time, switch: &mut Switch) -> Event {
-        let ref queue = &switch.queue;
+    fn advance(&mut self, _now: Time, switch: &mut Switch) -> Event {
+        let queue = &switch.queue;
 
-        assert!(queue.len() > 0, "Cannot run if T_On state with empty queue");
+        assert!(
+            !queue.is_empty(),
+            "Cannot run if T_On state with empty queue"
+        );
 
         let next_state = self.last_event + switch.t_w;
         self.last_event = next_state;
@@ -215,6 +221,7 @@ impl SwitchStatus for TOn {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 struct On {
     last_event: Time,
     hyst_end: Time,
@@ -234,18 +241,18 @@ impl SwitchStatus for On {
         Status::On
     }
 
-    fn advance(mut self: Box<Self>, now: Time, switch: &mut Switch) -> Event {
+    fn advance(&mut self, now: Time, switch: &mut Switch) -> Event {
         let packet = {
-            let ref mut queue = &mut switch.queue;
+            let queue = &mut switch.queue;
 
-            assert!(queue.is_empty() == false);
+            assert!(!queue.is_empty());
 
             if queue[0].arrival() > now {
                 let new_state: (Time, Box<SwitchStatus>) = if queue[0].arrival() > self.hyst_end {
                     (self.hyst_end, Box::new(TOff::new(self.hyst_end)))
                 } else {
                     self.last_event = queue[0].arrival();
-                    (self.last_event, self)
+                    (self.last_event, Box::new(*self))
                 };
                 return Event {
                     time: new_state.0,
@@ -265,7 +272,7 @@ impl SwitchStatus for On {
 
         Event {
             time: self.last_event,
-            status: self,
+            status: Box::new(*self),
             packet: Some(packet),
             state_change: false,
         }
@@ -287,7 +294,7 @@ impl SwitchStatus for TOff {
         Status::TOff
     }
 
-    fn advance(mut self: Box<Self>, _now: Time, switch: &mut Switch) -> Event {
+    fn advance(&mut self, _now: Time, switch: &mut Switch) -> Event {
         let next_state = self.last_event + switch.t_s;
         self.last_event = next_state;
 

@@ -29,7 +29,7 @@ impl<R: Read> Iterator for PacketsFromRead<R> {
         let line = &mut String::new();
 
         match self.is.read_line(line) {
-            Err(_) => return None,
+            Err(_) => None,
             _ => {
                 let values: Vec<&str> = line.split_whitespace().collect();
 

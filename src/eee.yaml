@@ -7,14 +7,14 @@ args:
         short: h
         long: hyst
         value_name: HYST
-        help: Time before entering LPI in µs
+        help: Time before entering LPI in ns
         takes_value: true
         default_value: "0"
     - delay:
         short: d
         long: delay
         value_name: DELAY
-        help: Time since first scheduled packet in LPI until resuming normal mode
+        help: Time since first scheduled packet in LPI until resuming normal mode in ns
         default_value: "0"
     - INPUT:
         help: Traffic input file to use. Format "time (s) length (bytes)". Leave empty for stdin.

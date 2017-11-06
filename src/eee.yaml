@@ -1,5 +1,5 @@
 name: eee-hyst
-version: "0.2.1"
+version: "0.2.2"
 author: Miguel Rodríguez Pérez <miguel@det.uvigo.gal>
 about: A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis
 args:

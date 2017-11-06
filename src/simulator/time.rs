@@ -1,6 +1,5 @@
 use std::num::ParseIntError;
 use std::str::FromStr;
-use std::fmt::{Display, Formatter, Error};
 use std::ops::{Add, Sub, Div};
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
@@ -47,11 +46,5 @@ impl Div for Time {
 
     fn div(self, other: Time) -> f64 {
         self.0 as f64 / other.0 as f64
-    }
-}
-
-impl Display for Time {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "{}", self.0)
     }
 }

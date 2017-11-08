@@ -168,8 +168,7 @@ impl SwitchStatus for Off {
             "Cannot run if Off state with empty queue"
         );
 
-        let next_state = cmp::max(queue[0].arrival, self.last_event) + switch.idle; /* Take into account
-        that the packet may have arrived with the interface transitioning to sleep */
+        let next_state = cmp::max(queue[0].arrival + switch.idle, self.last_event);
 
         self.last_event = next_state;
 

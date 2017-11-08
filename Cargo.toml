@@ -1,6 +1,6 @@
 [package]
 name = "eee-hyst"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Miguel Rodríguez Pérez <miguel@det.uvigo.gal>"]
 
 [dependencies]

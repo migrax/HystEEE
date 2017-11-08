@@ -1,5 +1,5 @@
 name: eee-hyst
-version: "0.2.3"
+version: "0.2.4"
 author: Miguel Rodríguez Pérez <miguel@det.uvigo.gal>
 about: A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis
 args:
@@ -32,4 +32,9 @@ args:
         help: Log output filename, if present.
         required: false
         takes_value: true
+    - verbose:
+        short: v
+        long: verbose
+        help: Write verbose log. Includes every state change.
+        required: false
  

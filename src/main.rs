@@ -96,6 +96,8 @@ fn main() {
     let yaml = load_yaml!("eee.yaml");
     let matches = App::from_yaml(yaml).get_matches();
 
+    let verbose = matches.is_present("verbose");
+
     let hyst = matches.value_of("hyst").unwrap().parse();
     let maxidle = matches.value_of("delay").unwrap().parse();
 
@@ -172,7 +174,7 @@ fn main() {
             _ => None,
         })
         .map(|ev| {
-            if log_writer.is_some() {
+            if verbose && log_writer.is_some() {
                 writeln!(
                     log_writer.as_mut().unwrap(),
                     "{:e}\t{}",

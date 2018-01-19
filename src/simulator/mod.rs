@@ -1,6 +1,6 @@
 mod time;
 
-use switch::{Switch, Packet, Status};
+use switch::{Packet, Status, Switch};
 use std::iter::Iterator;
 pub use self::time::Time;
 
@@ -36,13 +36,32 @@ impl<I: Iterator<Item = Packet>> Iterator for Simulator<I> {
 }
 
 impl<I: Iterator<Item = Packet>> Simulator<I> {
-    pub fn new(hyst: Time, idle: Time, mut input: I) -> Simulator<I> {
+    pub fn new(hyst: Time, idle: Time, input: I) -> Simulator<I> {
+        let switch = Switch::new(hyst, idle);
+
+        Simulator::new_internal(input, switch)
+    }
+
+    pub fn new_explicit(
+        hyst: Time,
+        idle: Time,
+        input: I,
+        ts: Time,
+        tw: Time,
+        capacity: f64,
+    ) -> Simulator<I> {
+        let switch = Switch::new_explicit(hyst, idle, ts, tw, capacity);
+
+        Simulator::new_internal(input, switch)
+    }
+
+    fn new_internal(mut input: I, switch: Switch) -> Simulator<I> {
         let packet = input.next();
 
         let mut s = Simulator {
             input: input,
             current_time: Time(0),
-            switch: Switch::new(hyst, idle),
+            switch: switch,
             next_packet: packet,
         };
         if s.next_packet.is_some() {

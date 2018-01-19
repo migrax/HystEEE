@@ -44,10 +44,14 @@ pub struct Switch {
 
 impl Switch {
     pub fn new(hyst: Time, idle: Time) -> Switch {
+        Switch::new_explicit(hyst, idle, T_S, T_W, CAPACITY)
+    }
+
+    pub fn new_explicit(hyst: Time, idle: Time, ts: Time, tw: Time, capacity: f64) -> Switch {
         Switch {
-            t_s: T_S,
-            t_w: T_W,
-            byte_time: 1e9 * 8.0 / CAPACITY,
+            t_s: ts,
+            t_w: tw,
+            byte_time: 1e9 * 8.0 / capacity,
             hyst: hyst,
             idle: idle,
             status: Some(Box::new(Off::new(Time(0)))),

@@ -1,8 +1,7 @@
 use simulator::Time;
 use std::cmp;
 use std::collections::VecDeque;
-use std::fmt::{Display, Formatter, Error};
-
+use std::fmt::{Display, Error, Formatter};
 
 const T_S: Time = Time(2880);
 const T_W: Time = Time(4480);
@@ -159,7 +158,9 @@ struct Off {
 
 impl Off {
     fn new(last_event: Time) -> Off {
-        Off { last_event: last_event }
+        Off {
+            last_event: last_event,
+        }
     }
 }
 
@@ -195,7 +196,9 @@ struct TOn {
 
 impl TOn {
     fn new(last_event: Time) -> TOn {
-        TOn { last_event: last_event }
+        TOn {
+            last_event: last_event,
+        }
     }
 }
 
@@ -288,7 +291,9 @@ struct TOff {
 
 impl TOff {
     fn new(last_event: Time) -> TOff {
-        TOff { last_event: last_event }
+        TOff {
+            last_event: last_event,
+        }
     }
 }
 

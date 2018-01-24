@@ -28,11 +28,11 @@ before entering LPI mode.
     -h, --hyst <HYST>        Time before entering LPI in µs [default: 0]
 
 ### ARGS:
-    <INPUT>    Traffic input file to use. Format "time (ns) length (bytes)".
+    <INPUT>    Traffic input file to use. Format "time (s) length (bytes)".
                Use '-' for stdin.
 
 ## Legal
 
-Copyright ⓒ 2017 Miguel Rodríguez Pérez <miguel@det.uvigo.gal>.
+Copyright ⓒ 2017–2018 Miguel Rodríguez Pérez <miguel@det.uvigo.gal>.
 
 This simulator is licensed under the GNU General Public License, version 3 (GPL-3.0). For for information see LICENSE.txt

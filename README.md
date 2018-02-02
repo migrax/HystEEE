@@ -35,4 +35,4 @@ before entering LPI mode.
 
 Copyright ⓒ 2017–2018 Miguel Rodríguez Pérez <miguel@det.uvigo.gal>.
 
-This simulator is licensed under the GNU General Public License, version 3 (GPL-3.0). For for information see LICENSE.txt
+This simulator is licensed under the GNU General Public License, version 3 (GPL-3.0). For information see LICENSE.txt

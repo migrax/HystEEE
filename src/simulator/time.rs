@@ -2,7 +2,7 @@ use std::num::ParseIntError;
 use std::str::FromStr;
 use std::ops::{Add, Sub, Div};
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Hash, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct Time(pub u64);
 
 impl Time {

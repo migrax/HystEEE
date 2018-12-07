@@ -1,8 +1,8 @@
 mod time;
 
+pub use self::time::Time;
 use crate::switch::{Packet, Status, Switch};
 use std::iter::Iterator;
-pub use self::time::Time;
 
 pub struct Simulator<I: Iterator<Item = Packet>> {
     input: I,
@@ -59,9 +59,9 @@ impl<I: Iterator<Item = Packet>> Simulator<I> {
         let packet = input.next();
 
         let mut s = Simulator {
-            input: input,
+            input,
             current_time: Time(0),
-            switch: switch,
+            switch,
             next_packet: packet,
         };
         if s.next_packet.is_some() {

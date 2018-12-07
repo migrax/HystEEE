@@ -1,6 +1,6 @@
 [package]
 name = "eee-hyst"
-version = "0.4.9"
+version = "0.5.0"
 authors = ["Miguel Rodríguez Pérez <miguel@det.uvigo.gal>"]
 edition = "2018"
 

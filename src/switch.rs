@@ -15,10 +15,7 @@ pub struct Packet {
 
 impl Packet {
     pub fn new(arrival: Time, size: u32) -> Packet {
-        Packet {
-            arrival: arrival,
-            size: size,
-        }
+        Packet { arrival, size }
     }
 
     pub fn arrival(&self) -> Time {
@@ -29,7 +26,6 @@ impl Packet {
         self.size
     }
 }
-
 
 pub struct Switch {
     t_s: Time,
@@ -51,8 +47,8 @@ impl Switch {
             t_s: ts,
             t_w: tw,
             byte_time: 1e9 * 8.0 / capacity,
-            hyst: hyst,
-            idle: idle,
+            hyst,
+            idle,
             status: Some(Box::new(Off::new(Time(0)))),
             queue: VecDeque::new(),
         }
@@ -158,9 +154,7 @@ struct Off {
 
 impl Off {
     fn new(last_event: Time) -> Off {
-        Off {
-            last_event: last_event,
-        }
+        Off { last_event }
     }
 }
 
@@ -196,9 +190,7 @@ struct TOn {
 
 impl TOn {
     fn new(last_event: Time) -> TOn {
-        TOn {
-            last_event: last_event,
-        }
+        TOn { last_event }
     }
 }
 
@@ -236,7 +228,7 @@ struct On {
 impl On {
     fn new(last_event: Time) -> On {
         On {
-            last_event: last_event,
+            last_event,
             hyst_end: last_event,
         }
     }
@@ -254,7 +246,8 @@ impl SwitchStatus for On {
             assert!(!queue.is_empty());
 
             if queue[0].arrival() > now {
-                let new_state: (Time, Box<dyn SwitchStatus>) = if queue[0].arrival() > self.hyst_end {
+                let new_state: (Time, Box<dyn SwitchStatus>) = if queue[0].arrival() > self.hyst_end
+                {
                     (self.hyst_end, Box::new(TOff::new(self.hyst_end)))
                 } else {
                     self.last_event = queue[0].arrival();
@@ -291,9 +284,7 @@ struct TOff {
 
 impl TOff {
     fn new(last_event: Time) -> TOff {
-        TOff {
-            last_event: last_event,
-        }
+        TOff { last_event }
     }
 }
 

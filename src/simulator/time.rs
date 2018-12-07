@@ -1,12 +1,12 @@
 use std::num::ParseIntError;
+use std::ops::{Add, Div, Sub};
 use std::str::FromStr;
-use std::ops::{Add, Sub, Div};
 
 #[derive(PartialEq, Eq, Hash, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct Time(pub u64);
 
 impl Time {
-    pub fn as_secs(&self) -> f64 {
+    pub fn as_secs(self) -> f64 {
         self.0 as f64 / 1e9
     }
 

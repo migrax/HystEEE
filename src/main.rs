@@ -2,15 +2,14 @@
 
 extern crate clap;
 
-
 use clap::App;
+use eee_hyst::switch::{Packet, Status};
+use eee_hyst::{simulator, Time};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io;
-use std::io::{BufReader, BufRead, BufWriter, Write};
-use eee_hyst::{Time, simulator};
-use eee_hyst::switch::{Packet, Status};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::iter::Iterator;
-use std::collections::HashMap;
 
 struct PacketsFromRead<'a, R: BufRead + ?Sized> {
     is: &'a mut R,
@@ -36,14 +35,12 @@ impl<'a, R: BufRead + ?Sized> Iterator for PacketsFromRead<'a, R> {
                 match values.len() {
                     0 => None, // Just an empty line
                     2 => Some(Packet::new(
-                        Time::from_secs(values[0].parse().expect(&format!(
-                            "{} is not a valid arrival time.",
-                            values[0]
-                        ))),
-                        values[1].parse().expect(&format!(
-                            "{} is not a valid size.",
-                            values[1]
-                        )),
+                        Time::from_secs(values[0].parse().unwrap_or_else(|_| {
+                            panic!("{} is not a valid arrival time.", values[0])
+                        })),
+                        values[1]
+                            .parse()
+                            .unwrap_or_else(|_| panic!("{} is not a valid size.", values[1])),
                     )),
                     _ => {
                         eprintln!("Malformed line \"{}\"", line);
@@ -113,7 +110,7 @@ fn main() {
     let input_read: &mut dyn BufRead = match matches.value_of("INPUT") {
         Some(filename) => {
             let file = File::open(filename);
-            if !file.is_ok() {
+            if file.is_err() {
                 eprintln!("Could not open input file {}.", filename);
                 ::std::process::exit(1);
             }
@@ -131,7 +128,7 @@ fn main() {
     let mut trace_writer = match matches.value_of("OUTPUT") {
         Some(filename) => {
             let file = File::create(filename);
-            if !file.is_ok() {
+            if file.is_err() {
                 eprintln!("Could not open trace file {} for writing.", filename);
                 ::std::process::exit(2);
             }
@@ -144,7 +141,7 @@ fn main() {
     match matches.value_of("LOG") {
         Some(filename) => {
             let file = File::create(filename);
-            if !file.is_ok() {
+            if file.is_err() {
                 eprintln!("Could not open log file {} for writing.", filename);
                 ::std::process::exit(2);
             }
@@ -180,7 +177,8 @@ fn main() {
                     "{:e}\t{}",
                     ev.0.as_secs(),
                     ev.1
-                ).expect("Error writing output log.");
+                )
+                .expect("Error writing output log.");
             }
             ev
         })
@@ -197,7 +195,8 @@ fn main() {
                 state,
                 time.as_secs(),
                 100.0 * (*time / total)
-            ).expect("Error writing to output log.");
+            )
+            .expect("Error writing to output log.");
         }
     }
 }

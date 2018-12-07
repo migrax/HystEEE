@@ -1,7 +1,7 @@
 #[macro_use]
 
 extern crate clap;
-extern crate eee_hyst;
+
 
 use clap::App;
 use std::fs::File;
@@ -12,7 +12,7 @@ use eee_hyst::switch::{Packet, Status};
 use std::iter::Iterator;
 use std::collections::HashMap;
 
-struct PacketsFromRead<'a, R: 'a + BufRead + ?Sized> {
+struct PacketsFromRead<'a, R: BufRead + ?Sized> {
     is: &'a mut R,
 }
 
@@ -110,7 +110,7 @@ fn main() {
     let mut file_reader;
     let mut stdin_reader;
 
-    let input_read: &mut BufRead = match matches.value_of("INPUT") {
+    let input_read: &mut dyn BufRead = match matches.value_of("INPUT") {
         Some(filename) => {
             let file = File::open(filename);
             if !file.is_ok() {
@@ -135,9 +135,9 @@ fn main() {
                 eprintln!("Could not open trace file {} for writing.", filename);
                 ::std::process::exit(2);
             }
-            BufWriter::new(Box::new(file.unwrap()) as Box<Write>)
+            BufWriter::new(Box::new(file.unwrap()) as Box<dyn Write>)
         }
-        None => BufWriter::new(Box::new(stdout.lock()) as Box<Write>),
+        None => BufWriter::new(Box::new(stdout.lock()) as Box<dyn Write>),
     };
 
     let mut log_writer;

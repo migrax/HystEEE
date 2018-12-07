@@ -1,6 +1,4 @@
-#[cfg(test)]
 
-extern crate eee_hyst;
 
 use eee_hyst::simulator::{Simulator, Time};
 use eee_hyst::switch::{Packet, Status};
@@ -10,7 +8,7 @@ pub fn setup<'a>(
     input: &'a [(u64, u32)],
     hyst: Time,
     idle: Time,
-) -> Simulator<Box<Iterator<Item = Packet> + 'a>> {
+) -> Simulator<Box<dyn Iterator<Item = Packet> + 'a>> {
 
     let input_iter = Box::new(input.into_iter().map(
         |entry| Packet::new(Time(entry.0), entry.1),
@@ -21,7 +19,7 @@ pub fn setup<'a>(
 
 fn adapt_sim<'a, I: Iterator<Item = (Time, Option<Packet>, Option<Status>)>>(
     input: &'a mut I,
-) -> Box<'a + Iterator<Item = Packet>> {
+) -> Box<dyn 'a + Iterator<Item = Packet>> {
     Box::new(
         input
             .filter(|ev| match *ev {

@@ -37,7 +37,7 @@ pub struct Switch {
     byte_time: f64,
     hyst: Time,
     idle: Time,
-    status: Option<Box<SwitchStatus>>,
+    status: Option<Box<dyn SwitchStatus>>,
     queue: VecDeque<Packet>,
 }
 
@@ -117,7 +117,7 @@ impl SwitchEvent {
 }
 
 struct Event {
-    status: Box<SwitchStatus>,
+    status: Box<dyn SwitchStatus>,
     time: Time,
     packet: Option<Packet>,
     state_change: bool,
@@ -132,7 +132,7 @@ pub enum Status {
 }
 
 impl Display for Status {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
             "{}",
@@ -254,7 +254,7 @@ impl SwitchStatus for On {
             assert!(!queue.is_empty());
 
             if queue[0].arrival() > now {
-                let new_state: (Time, Box<SwitchStatus>) = if queue[0].arrival() > self.hyst_end {
+                let new_state: (Time, Box<dyn SwitchStatus>) = if queue[0].arrival() > self.hyst_end {
                     (self.hyst_end, Box::new(TOff::new(self.hyst_end)))
                 } else {
                     self.last_event = queue[0].arrival();

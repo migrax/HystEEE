@@ -1,6 +1,4 @@
-#[cfg(test)]
 
-extern crate eee_hyst;
 mod common;
 
 use eee_hyst::simulator::Time;

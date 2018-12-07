@@ -1,11 +1,12 @@
 [package]
 name = "eee-hyst"
-version = "0.4.0"
+version = "0.4.9"
 authors = ["Miguel Rodríguez Pérez <miguel@det.uvigo.gal>"]
+edition = "2018"
 
 [dependencies]
 
 [dependencies.clap]
-version = "2.30" 
+version = "2.32" 
 default-features = true
 features = ["yaml"]

@@ -1,6 +1,6 @@
 mod time;
 
-use switch::{Packet, Status, Switch};
+use crate::switch::{Packet, Status, Switch};
 use std::iter::Iterator;
 pub use self::time::Time;
 

@@ -1,4 +1,4 @@
-use simulator::Time;
+use crate::simulator::Time;
 use std::cmp;
 use std::collections::VecDeque;
 use std::fmt::{Display, Error, Formatter};

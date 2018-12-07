@@ -5,7 +5,7 @@ mod common;
 
 use eee_hyst::simulator::Time;
 use eee_hyst::switch::Packet;
-use common::*;
+use crate::common::*;
 
 #[test]
 fn from_off() {

@@ -1,8 +1,3 @@
-#[macro_use]
-
-extern crate clap;
-
-use clap::App;
 use eee_hyst::switch::{Packet, Status};
 use eee_hyst::{simulator, Time};
 use std::collections::HashMap;
@@ -10,6 +5,36 @@ use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::iter::Iterator;
+use std::path::PathBuf;
+use structopt::StructOpt;
+
+#[derive(StructOpt, Debug)]
+#[structopt(author, about)]
+struct Opt {
+    /// Time before entering LPI in ns
+    #[structopt(short = "h", long = "hyst", default_value = "0")]
+    hyst: u64,
+
+    /// Time since firt scheduled packet in LPI until resuming normal mode in ns
+    #[structopt(short = "d", long = "delay", default_value = "0")]
+    delay: u64,
+
+    /// Traffic input file to use. Format "time (s) length (bytes)". Leaveeee empty for STDIN
+    #[structopt(name = "INPUT", parse(from_os_str))]
+    input: Option<PathBuf>,
+
+    /// Traffic output file. Same format as INPUT. Uses stdout if not present.
+    #[structopt(short = "o", long = "output", parse(from_os_str))]
+    output: Option<PathBuf>,
+
+    /// Log output filename, if present
+    #[structopt(short = "l", long = "log", parse(from_os_str))]
+    log: Option<PathBuf>,
+
+    /// Write verbose log. Includes every state change
+    #[structopt(short = "v", long = "verbose")]
+    verbose: bool,
+}
 
 struct PacketsFromRead<'a, R: BufRead + ?Sized> {
     is: &'a mut R,
@@ -90,28 +115,22 @@ impl<'a> IntoIterator for &'a mut Stats {
 }
 
 fn main() {
-    let yaml = load_yaml!("eee.yaml");
-    let matches = App::from_yaml(yaml).get_matches();
+    let opt = Opt::from_args();
 
-    let verbose = matches.is_present("verbose");
+    let verbose = opt.verbose;
 
-    let hyst = matches.value_of("hyst").unwrap().parse();
-    let maxidle = matches.value_of("delay").unwrap().parse();
-
-    if hyst.is_err() || maxidle.is_err() {
-        eprintln!("Could parse a number.");
-        ::std::process::exit(1);
-    }
+    let hyst = Time(opt.hyst);
+    let maxidle = Time(opt.delay);
 
     let stdin = io::stdin();
     let mut file_reader;
     let mut stdin_reader;
 
-    let input_read: &mut dyn BufRead = match matches.value_of("INPUT") {
+    let input_read: &mut dyn BufRead = match opt.input {
         Some(filename) => {
             let file = File::open(filename);
             if file.is_err() {
-                eprintln!("Could not open input file {}.", filename);
+                eprintln!("Could not open input file.");
                 ::std::process::exit(1);
             }
             file_reader = BufReader::new(file.unwrap());
@@ -125,11 +144,11 @@ fn main() {
 
     let stdout = io::stdout();
 
-    let mut trace_writer = match matches.value_of("OUTPUT") {
+    let mut trace_writer = match opt.output {
         Some(filename) => {
             let file = File::create(filename);
             if file.is_err() {
-                eprintln!("Could not open trace file {} for writing.", filename);
+                eprintln!("Could not open trace file for writing.");
                 ::std::process::exit(2);
             }
             BufWriter::new(Box::new(file.unwrap()) as Box<dyn Write>)
@@ -138,11 +157,11 @@ fn main() {
     };
 
     let mut log_writer;
-    match matches.value_of("LOG") {
+    match opt.log {
         Some(filename) => {
             let file = File::create(filename);
             if file.is_err() {
-                eprintln!("Could not open log file {} for writing.", filename);
+                eprintln!("Could not open log file for writing.");
                 ::std::process::exit(2);
             }
             log_writer = Some(BufWriter::new(file.unwrap()));
@@ -150,11 +169,7 @@ fn main() {
         None => log_writer = None,
     }
 
-    let simul = simulator::Simulator::new(
-        hyst.expect("Hystereris was not a proper number."),
-        maxidle.expect("Delay was not a properly formatted number."),
-        PacketsFromRead::new(input_read),
-    );
+    let simul = simulator::Simulator::new(hyst, maxidle, PacketsFromRead::new(input_read));
 
     let mut stats = Stats::new();
     for state in simul

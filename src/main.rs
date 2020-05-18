@@ -6,33 +6,34 @@ use std::io;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::iter::Iterator;
 use std::path::PathBuf;
-use structopt::StructOpt;
+use clap::Clap;
 
-#[derive(StructOpt, Debug)]
-#[structopt(author, about)]
+#[derive(Clap, Debug)]
+/// Miguel Rodríguez Pérez <miguel@det.uvigo.gal>
+/// A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis
 struct Opt {
     /// Time before entering LPI in ns
-    #[structopt(short = "h", long = "hyst", default_value = "0")]
+    #[clap(short = "h", long = "hyst", default_value = "0")]
     hyst: u64,
 
     /// Time since firt scheduled packet in LPI until resuming normal mode in ns
-    #[structopt(short = "d", long = "delay", default_value = "0")]
+    #[clap(short = "d", long = "delay", default_value = "0")]
     delay: u64,
 
     /// Traffic input file to use. Format "time (s) length (bytes)". Leaveeee empty for STDIN
-    #[structopt(name = "INPUT", parse(from_os_str))]
+    #[clap(name = "INPUT", parse(from_os_str))]
     input: Option<PathBuf>,
 
     /// Traffic output file. Same format as INPUT. Uses stdout if not present.
-    #[structopt(short = "o", long = "output", parse(from_os_str))]
+    #[clap(short = "o", long = "output", parse(from_os_str))]
     output: Option<PathBuf>,
 
     /// Log output filename, if present
-    #[structopt(short = "l", long = "log", parse(from_os_str))]
+    #[clap(short = "l", long = "log", parse(from_os_str))]
     log: Option<PathBuf>,
 
     /// Write verbose log. Includes every state change
-    #[structopt(short = "v", long = "verbose")]
+    #[clap(short = "v", long = "verbose")]
     verbose: bool,
 }
 
@@ -115,7 +116,7 @@ impl<'a> IntoIterator for &'a mut Stats {
 }
 
 fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
 
     let verbose = opt.verbose;
 

@@ -13,11 +13,11 @@ use clap::Clap;
 /// A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis
 struct Opt {
     /// Time before entering LPI in ns
-    #[clap(short = "h", long = "hyst", default_value = "0")]
+    #[clap(short = 'h', long = "hyst", default_value = "0")]
     hyst: u64,
 
     /// Time since firt scheduled packet in LPI until resuming normal mode in ns
-    #[clap(short = "d", long = "delay", default_value = "0")]
+    #[clap(short = 'd', long = "delay", default_value = "0")]
     delay: u64,
 
     /// Traffic input file to use. Format "time (s) length (bytes)". Leaveeee empty for STDIN
@@ -25,15 +25,15 @@ struct Opt {
     input: Option<PathBuf>,
 
     /// Traffic output file. Same format as INPUT. Uses stdout if not present.
-    #[clap(short = "o", long = "output", parse(from_os_str))]
+    #[clap(short = 'o', long = "output", parse(from_os_str))]
     output: Option<PathBuf>,
 
     /// Log output filename, if present
-    #[clap(short = "l", long = "log", parse(from_os_str))]
+    #[clap(short = 'l', long = "log", parse(from_os_str))]
     log: Option<PathBuf>,
 
     /// Write verbose log. Includes every state change
-    #[clap(short = "v", long = "verbose")]
+    #[clap(short = 'v', long = "verbose")]
     verbose: bool,
 }
 

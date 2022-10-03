@@ -6,6 +6,6 @@ edition = "2018"
 description = "A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis"
 
 [dependencies.clap]
-version = "3.0.0-beta.2"
+version = "4.0.8"
 features = ["wrap_help"]
 

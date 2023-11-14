@@ -1,7 +1,7 @@
 HystEEE
 =======
 
-[![Build Status](https://travis-ci.org/migrax/HystEEE.svg?branch=master)](https://travis-ci.org/migrax/HystEEE)
+![Build Status](https://github.com/migrax/HystEEE/actions/workflows/rust.yml/badge.svg)
 
 A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis
 
@@ -33,6 +33,6 @@ before entering LPI mode.
 
 ## Legal
 
-Copyright ⓒ 2017–2018 Miguel Rodríguez Pérez <miguel@det.uvigo.gal>.
+Copyright ⓒ 2017–2023 Miguel Rodríguez Pérez <miguel@det.uvigo.gal>.
 
 This simulator is licensed under the GNU General Public License, version 3 (GPL-3.0). For information see LICENSE.txt

@@ -1,5 +1,3 @@
-
-
 use eee_hyst::simulator::{Simulator, Time};
 use eee_hyst::switch::{Packet, Status};
 use std::iter::Iterator;
@@ -9,10 +7,11 @@ pub fn setup<'a>(
     hyst: Time,
     idle: Time,
 ) -> Simulator<Box<dyn Iterator<Item = Packet> + 'a>> {
-
-    let input_iter = Box::new(input.into_iter().map(
-        |entry| Packet::new(Time(entry.0), entry.1),
-    ));
+    let input_iter = Box::new(
+        input
+            .iter()
+            .map(|entry| Packet::new(Time(entry.0), entry.1)),
+    );
 
     Simulator::new(hyst, idle, input_iter)
 }
@@ -22,10 +21,7 @@ fn adapt_sim<'a, I: Iterator<Item = (Time, Option<Packet>, Option<Status>)>>(
 ) -> Box<dyn 'a + Iterator<Item = Packet>> {
     Box::new(
         input
-            .filter(|ev| match *ev {
-                (_, Some(_), _) => true,
-                _ => false,
-            })
+            .filter(|ev| matches!(*ev, (_, Some(_), _)))
             .map(|ev| Packet::new(ev.0, ev.1.unwrap().size())),
     )
 }

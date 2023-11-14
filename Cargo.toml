@@ -1,11 +1,11 @@
 [package]
 name = "eee-hyst"
-version = "0.6.2"
+version = "0.6.3"
 authors = ["Miguel Rodríguez Pérez <miguel@det.uvigo.gal>"]
-edition = "2018"
+edition = "2021"
 description = "A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis"
 
 [dependencies.clap]
-version = "4.0.12"
-features = ["wrap_help"]
 
+version = "4.4.8"
+features = ["derive", "wrap_help"]

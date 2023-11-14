@@ -1,3 +1,4 @@
+use clap::Parser;
 use eee_hyst::switch::{Packet, Status};
 use eee_hyst::{simulator, Time};
 use std::collections::HashMap;
@@ -6,9 +7,9 @@ use std::io;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::iter::Iterator;
 use std::path::PathBuf;
-use clap::Clap;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
 /// Miguel Rodríguez Pérez <miguel@det.uvigo.gal>
 /// A Rustified Simulator for 10Gb/s EEE with Configurable Hysteresis
 struct Opt {
@@ -21,15 +22,15 @@ struct Opt {
     delay: u64,
 
     /// Traffic input file to use. Format "time (s) length (bytes)". Leaveeee empty for STDIN
-    #[clap(name = "INPUT", parse(from_os_str))]
+    #[clap(name = "INPUT")]
     input: Option<PathBuf>,
 
     /// Traffic output file. Same format as INPUT. Uses stdout if not present.
-    #[clap(short = 'o', long = "output", parse(from_os_str))]
+    #[clap(short = 'o', long = "output")]
     output: Option<PathBuf>,
 
     /// Log output filename, if present
-    #[clap(short = 'l', long = "log", parse(from_os_str))]
+    #[clap(short = 'l', long = "log")]
     log: Option<PathBuf>,
 
     /// Write verbose log. Includes every state change
